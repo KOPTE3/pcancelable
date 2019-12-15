@@ -1,22 +1,22 @@
 /**
- * Cancelable identifier.
+ * Cancellable identifier.
  */
 
-const CANCELABLE_IDENTIFIER = '@@Cancelable';
+const CANCELLABLE_IDENTIFIER = '@@Cancellable';
 
-export class CancelationError extends Error {
+export class CancellationError extends Error {
   constructor() {
-    super('Cancelable was canceled');
+    super('Cancellable was canceled');
 
-    this.name = 'CancelationError';
+    this.name = 'CancellationError';
   }
 }
 
 /**
- * Export `Cancelable`.
+ * Export `Cancellable`.
  */
 
-export default class Cancelable {
+export default class Cancellable {
   canceled = false;
   children = null;
   onCancel = null;
@@ -24,10 +24,10 @@ export default class Cancelable {
 
   constructor(executor) {
     if (typeof executor !== 'function') {
-      throw new TypeError('Cancelable resolver undefined is not a function');
+      throw new TypeError('Cancellable resolver undefined is not a function');
     }
 
-    Object.defineProperty(this, CANCELABLE_IDENTIFIER, {
+    Object.defineProperty(this, CANCELLABLE_IDENTIFIER, {
       value: true,
       writable: false,
       readable: true
@@ -60,95 +60,95 @@ export default class Cancelable {
   }
 
   /**
-   * Returns a cancelable that either fulfills when all of the values in the
+   * Returns a cancellable that either fulfills when all of the values in the
    * iterable argument have fulfilled or rejects as soon as one of the
-   * cancelables in the iterable argument rejects.
+   * cancellables in the iterable argument rejects.
    *
    * This method wraps the `Promise.all` method and creates a list of
-   * cancelables that are canceled when `.cancel()` is called.
+   * cancellables that are canceled when `.cancel()` is called.
    */
 
   static all(iterable) {
-    const cancelable = Cancelable.resolve(Promise.all(iterable));
+    const cancellable = Cancellable.resolve(Promise.all(iterable));
 
     for (const value of iterable) {
-      if (!Cancelable.isCancelable(value)) {
+      if (!Cancellable.isCancellable(value)) {
         continue;
       }
 
-      if (cancelable.children) {
-        cancelable.children.push(value);
+      if (cancellable.children) {
+        cancellable.children.push(value);
       } else {
-        cancelable.children = [value];
+        cancellable.children = [value];
       }
     }
 
-    return cancelable;
+    return cancellable;
   }
 
   /**
-   * Determines whether the passed value is a `Cancelable`.
+   * Determines whether the passed value is a `Cancellable`.
    */
 
-  static isCancelable(value) {
-    return !!(value && value[CANCELABLE_IDENTIFIER]);
+  static isCancellable(value) {
+    return !!(value && value[CANCELLABLE_IDENTIFIER]);
   }
 
   /**
-   * Returns a cancelable that fulfills or rejects as soon as one of the
-   * cancelables in the iterable fulfills or rejects, with the value or reason
-   * from that cancelable.
+   * Returns a cancellable that fulfills or rejects as soon as one of the
+   * cancellables in the iterable fulfills or rejects, with the value or reason
+   * from that cancellable.
    *
    * This method wraps the `Promise.all` method and creates a list of
-   * cancelables that are canceled when `.cancel()` is called.
+   * cancellables that are canceled when `.cancel()` is called.
    */
 
   static race(promises) {
-    const cancelable = Cancelable.resolve(Promise.race(promises));
+    const cancellable = Cancellable.resolve(Promise.race(promises));
 
     for (const promise of promises) {
-      if (!Cancelable.isCancelable(promise)) {
+      if (!Cancellable.isCancellable(promise)) {
         continue;
       }
 
-      if (cancelable.children) {
-        cancelable.children.push(promise);
+      if (cancellable.children) {
+        cancellable.children.push(promise);
       } else {
-        cancelable.children = [promise];
+        cancellable.children = [promise];
       }
     }
 
-    return cancelable;
+    return cancellable;
   }
 
   /**
-   * Returns a `Cancelable` object that is resolved with the given value. If the
+   * Returns a `Cancellable` object that is resolved with the given value. If the
    * value is a thenable (i.e. has a then method), the returned promise will
    * unwrap that thenable, adopting its eventual state. Otherwise the returned
    * promise will be fulfilled with the value.
    */
 
   static resolve(value) {
-    if (Cancelable.isCancelable(value)) {
+    if (Cancellable.isCancellable(value)) {
       return value;
     }
 
-    return new Cancelable(resolve => {
+    return new Cancellable(resolve => {
       resolve(value);
     });
   }
 
   /**
-   * Returns a `Cancelable` object that is rejected with the given reason.
+   * Returns a `Cancellable` object that is rejected with the given reason.
    */
 
   static reject(reason) {
-    return Cancelable.resolve(Promise.reject(reason));
+    return Cancellable.resolve(Promise.reject(reason));
   }
 
   /**
-   * Cancels the `Cancelable`. It iterates upwards the chain canceling all the
-   * registered cancelables including its children.
+   * Cancels the `Cancellable`. It iterates upwards the chain canceling all the
+   * registered cancellables including its children.
    */
 
   cancel(cb = () => {}) {
@@ -163,7 +163,7 @@ export default class Cancelable {
 
       if (current.children) {
         for (let child of current.children) {
-          if (Cancelable.isCancelable(child)) {
+          if (Cancellable.isCancellable(child)) {
             child.cancel();
             child = null;
           }
@@ -179,7 +179,7 @@ export default class Cancelable {
       }
 
       if (!current.parent) {
-        current._reject(new CancelationError());
+        current._reject(new CancellationError());
       }
 
       current = prev.parent;
@@ -189,21 +189,21 @@ export default class Cancelable {
 
   /**
    * Has the same behavior of `Promise.catch` method.
-   * Appends a rejection handler callback to the cancelable, and returns a new
-   * `Cancelable` resolving to the return value of the callback if it is called,
-   * or to its original fulfillment value if the cancelable is instead fulfilled.
+   * Appends a rejection handler callback to the cancellable, and returns a new
+   * `Cancellable` resolving to the return value of the callback if it is called,
+   * or to its original fulfillment value if the cancellable is instead fulfilled.
    */
 
   catch(...args) {
-    const cancelable = Cancelable.resolve(this.promise.catch(...args));
+    const cancellable = Cancellable.resolve(this.promise.catch(...args));
 
-    cancelable.parent = this;
+    cancellable.parent = this;
 
-    return cancelable;
+    return cancellable;
   }
 
   /**
-   * Determines whether the created `Cancelable` is canceled.
+   * Determines whether the created `Cancellable` is canceled.
    */
 
   isCanceled() {
@@ -216,16 +216,16 @@ export default class Cancelable {
 
   /**
    * Has the same behavior of `Promise.then` method.
-   * Appends fulfillment and rejection handlers to the cancelable, and returns
-   * a new `Cancelable` resolving to the return value of the called handler,
+   * Appends fulfillment and rejection handlers to the cancellable, and returns
+   * a new `Cancellable` resolving to the return value of the called handler,
    * or to its original settled value if the promise was not handled.
    */
 
   then(...args) {
-    const cancelable = Cancelable.resolve(this.promise.then(...args));
+    const cancellable = Cancellable.resolve(this.promise.then(...args));
 
-    cancelable.parent = this;
+    cancellable.parent = this;
 
-    return cancelable;
+    return cancellable;
   }
 }

@@ -2,89 +2,89 @@
  * Module dependencies.
  */
 
-import Cancelable from '../src';
+import Cancellable from '../src';
 
 /**
- * Test `Cancelable`.
+ * Test `Cancellable`.
  */
 
-describe('Cancelable', () => {
+describe('Cancellable', () => {
   describe('constructor', () => {
     it('throws an error if the given executor is not a function', () => {
-      expect(() => new Cancelable()).toThrow(
-        'Cancelable resolver undefined is not a function'
+      expect(() => new Cancellable()).toThrow(
+        'Cancellable resolver undefined is not a function'
       );
     });
 
     it('creates an object with default properties', () => {
-      const cancelable = new Cancelable(() => {});
+      const cancellable = new Cancellable(() => {});
 
-      expect(cancelable).toHaveProperty('@@Cancelable', true);
-      expect(cancelable).toHaveProperty('canceled', false);
-      expect(cancelable).toHaveProperty('children', null);
-      expect(cancelable).toHaveProperty('onCancel', null);
-      expect(cancelable).toHaveProperty('parent', null);
-      expect(cancelable).toHaveProperty('promise');
-      expect(typeof cancelable.then === 'function').toBe(true);
+      expect(cancellable).toHaveProperty('@@Cancellable', true);
+      expect(cancellable).toHaveProperty('canceled', false);
+      expect(cancellable).toHaveProperty('children', null);
+      expect(cancellable).toHaveProperty('onCancel', null);
+      expect(cancellable).toHaveProperty('parent', null);
+      expect(cancellable).toHaveProperty('promise');
+      expect(typeof cancellable.then === 'function').toBe(true);
     });
 
-    it('creates a cancelable that resolves the given executor', async () => {
-      const cancelable = new Cancelable(resolve => {
+    it('creates a cancellable that resolves the given executor', async () => {
+      const cancellable = new Cancellable(resolve => {
         resolve('foo');
       });
 
-      expect(await cancelable).toBe('foo');
+      expect(await cancellable).toBe('foo');
     });
 
     it('passes a cancelation handler to the executor which is called when it is canceled', () => {
       expect.assertions(2);
 
       const cb = jest.fn();
-      const cancelable = new Cancelable((resolve, reject, onCancel) => {
+      const cancellable = new Cancellable((resolve, reject, onCancel) => {
         onCancel(cb);
       });
 
-      cancelable.catch(error => {
-        expect(error.name).toBe('CancelationError');
+      cancellable.catch(error => {
+        expect(error.name).toBe('CancellationError');
       });
 
-      cancelable.cancel();
+      cancellable.cancel();
 
       expect(cb).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('isCancelable', () => {
+  describe('isCancellable', () => {
     it('returns false if a value is not provided', () => {
-      expect(Cancelable.isCancelable()).toBe(false);
+      expect(Cancellable.isCancellable()).toBe(false);
     });
 
-    it('returns false if the given value is not a cancelable', () => {
-      expect(Cancelable.isCancelable('foo')).toBe(false);
+    it('returns false if the given value is not a cancellable', () => {
+      expect(Cancellable.isCancellable('foo')).toBe(false);
     });
 
-    it('returns true if the given value is a cancelable', () => {
-      const cancelable = Cancelable.resolve();
+    it('returns true if the given value is a cancellable', () => {
+      const cancellable = Cancellable.resolve();
 
-      expect(Cancelable.isCancelable(cancelable)).toBe(true);
+      expect(Cancellable.isCancellable(cancellable)).toBe(true);
     });
   });
 
   describe('reject', () => {
     it('rejects the promise', () => {
-      return Cancelable.reject('foo').catch(value => {
+      return Cancellable.reject('foo').catch(value => {
         expect(value).toBe('foo');
       });
     });
   });
 
   describe('then', () => {
-    it('returns a new Cancelable', () => {
-      expect(Cancelable.isCancelable(Cancelable.resolve().then()));
+    it('returns a new Cancellable', () => {
+      expect(Cancellable.isCancellable(Cancellable.resolve().then()));
     });
 
     it('can be chained', () => {
-      return Cancelable.resolve(1).then(value => value).then(value => {
+      return Cancellable.resolve(1).then(value => value).then(value => {
         expect(value).toBe(1);
       });
     });
@@ -92,79 +92,79 @@ describe('Cancelable', () => {
 
   describe('isCanceled', () => {
     it('returns false by default', () => {
-      expect(Cancelable.resolve().isCanceled()).toBe(false);
+      expect(Cancellable.resolve().isCanceled()).toBe(false);
     });
 
-    it('returns true if the cancelable was canceled', () => {
-      const cancelable = Cancelable.resolve();
+    it('returns true if the cancellable was canceled', () => {
+      const cancellable = Cancellable.resolve();
 
       expect.assertions(2);
 
-      cancelable.catch(error => {
-        expect(error.name).toBe('CancelationError');
+      cancellable.catch(error => {
+        expect(error.name).toBe('CancellationError');
       });
 
-      cancelable.cancel();
+      cancellable.cancel();
 
-      expect(cancelable.isCanceled()).toBe(true);
+      expect(cancellable.isCanceled()).toBe(true);
     });
   });
 
   describe('resolve', () => {
-    it('returns a Cancelable', () => {
-      expect(Cancelable.isCancelable(Cancelable.resolve())).toBe(true);
+    it('returns a Cancellable', () => {
+      expect(Cancellable.isCancellable(Cancellable.resolve())).toBe(true);
     });
 
-    it('returns the given cancelable', () => {
-      const cancelable = Cancelable.resolve();
+    it('returns the given cancellable', () => {
+      const cancellable = Cancellable.resolve();
 
-      expect(Cancelable.resolve(cancelable) === cancelable).toBe(true);
+      expect(Cancellable.resolve(cancellable) === cancellable).toBe(true);
     });
   });
 
   describe('all', () => {
     it('resolves the given values', async () => {
-      const cancelable = Cancelable.resolve('foo');
+      const cancellable = Cancellable.resolve('foo');
       const promise = Promise.resolve('bar');
 
-      expect(await Cancelable.all([cancelable, promise])).toEqual([
+      expect(await Cancellable.all([cancellable, promise])).toEqual([
         'foo',
         'bar'
       ]);
     });
 
-    it('stores the cancelables', () => {
-      const cancelable1 = Cancelable.resolve();
-      const cancelable2 = Cancelable.resolve();
-      const all = Cancelable.all([cancelable1, 1, cancelable2, 2, 3]);
+    it('stores the cancellables', () => {
+      const cancellable1 = Cancellable.resolve();
+      const cancellable2 = Cancellable.resolve();
+      const all = Cancellable.all([cancellable1, 1, cancellable2, 2, 3]);
 
       expect(all.children.length).toBe(2);
-      expect(all.children).toEqual([cancelable1, cancelable2]);
+      expect(all.children).toEqual([cancellable1, cancellable2]);
     });
 
-    it('cancels all the given cancelables', () => {
-      const cancelable1 = Cancelable.resolve();
-      const cancelable2 = Cancelable.resolve();
-      const all = Cancelable.all([cancelable1, cancelable2]);
+    it('cancels all the given cancellables', () => {
+      const cancellable1 = Cancellable.resolve();
+      const cancellable2 = Cancellable.resolve();
+      const all = Cancellable.all([cancellable1, cancellable2]);
 
       expect.assertions(10);
 
       all.catch(error => {
-        expect(error.message).toBe('Cancelable was canceled');
+        expect(error.message).toBe('Cancellable was canceled');
       });
 
       expect(all.children.length).toBe(2);
-      expect(all.children).toEqual([cancelable1, cancelable2]);
+      expect(all.children).toEqual([cancellable1, cancellable2]);
       expect(all.isCanceled()).toBe(false);
-      expect(cancelable1.isCanceled()).toBe(false);
-      expect(cancelable2.isCanceled()).toBe(false);
+      expect(cancellable1.isCanceled()).toBe(false);
+      expect(cancellable2.isCanceled()).toBe(false);
 
       all.cancel();
 
       expect(all.children).toBeNull();
       expect(all.isCanceled()).toBe(true);
-      expect(cancelable1.isCanceled()).toBe(true);
-      expect(cancelable2.isCanceled()).toBe(true);
+      expect(cancellable1.isCanceled()).toBe(true);
+      expect(cancellable2.isCanceled()).toBe(true);
     });
   });
 
@@ -174,75 +174,75 @@ describe('Cancelable', () => {
 
       expect.assertions(2);
 
-      const cancelable = new Cancelable((resolve, reject, onCancel) => {
+      const cancellable = new Cancellable((resolve, reject, onCancel) => {
         resolve();
 
         onCancel(cb => {
           cb();
         });
       }).catch(error => {
-        expect(error.name).toBe('CancelationError');
+        expect(error.name).toBe('CancellationError');
       });
 
-      cancelable.cancel(callback);
+      cancellable.cancel(callback);
 
       expect(callback).toHaveBeenCalledTimes(1);
     });
 
     it('rejects the promise', () => {
-      const cancelable = new Cancelable(resolve => {
+      const cancellable = new Cancellable(resolve => {
         resolve();
       });
 
       expect.assertions(1);
 
-      cancelable.catch(error => {
-        expect(error.name).toBe('CancelationError');
+      cancellable.catch(error => {
+        expect(error.name).toBe('CancellationError');
       });
 
-      cancelable.cancel();
+      cancellable.cancel();
     });
   });
 
   describe('race', () => {
     it('resolves the given values', async () => {
-      return Cancelable.race([1, 2]).then(value => {
+      return Cancellable.race([1, 2]).then(value => {
         expect(value).toBe(1);
       });
     });
 
-    it('stores the cancelables', () => {
-      const cancelable1 = Cancelable.resolve();
-      const cancelable2 = Cancelable.resolve();
-      const race = Cancelable.race([cancelable1, 1, cancelable2, 2, 3]);
+    it('stores the cancellables', () => {
+      const cancellable1 = Cancellable.resolve();
+      const cancellable2 = Cancellable.resolve();
+      const race = Cancellable.race([cancellable1, 1, cancellable2, 2, 3]);
 
       expect(race.children.length).toBe(2);
-      expect(race.children).toEqual([cancelable1, cancelable2]);
+      expect(race.children).toEqual([cancellable1, cancellable2]);
     });
 
-    it('cancels all the given cancelables', () => {
+    it('cancels all the given cancellables', () => {
       expect.assertions(10);
 
-      const cancelable1 = Cancelable.resolve();
-      const cancelable2 = Cancelable.resolve();
-      const race = Cancelable.race([cancelable1, cancelable2]);
+      const cancellable1 = Cancellable.resolve();
+      const cancellable2 = Cancellable.resolve();
+      const race = Cancellable.race([cancellable1, cancellable2]);
 
       race.catch(error => {
-        expect(error.name).toBe('CancelationError');
+        expect(error.name).toBe('CancellationError');
       });
 
       expect(race.children.length).toBe(2);
-      expect(race.children).toEqual([cancelable1, cancelable2]);
+      expect(race.children).toEqual([cancellable1, cancellable2]);
       expect(race.isCanceled()).toBe(false);
-      expect(cancelable1.isCanceled()).toBe(false);
-      expect(cancelable2.isCanceled()).toBe(false);
+      expect(cancellable1.isCanceled()).toBe(false);
+      expect(cancellable2.isCanceled()).toBe(false);
 
       race.cancel();
 
       expect(race.children).toBeNull();
       expect(race.isCanceled()).toBe(true);
-      expect(cancelable1.isCanceled()).toBe(true);
-      expect(cancelable2.isCanceled()).toBe(true);
+      expect(cancellable1.isCanceled()).toBe(true);
+      expect(cancellable2.isCanceled()).toBe(true);
     });
   });
 });

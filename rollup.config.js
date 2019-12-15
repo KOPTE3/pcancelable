@@ -13,7 +13,7 @@ const uglify = require('rollup-plugin-uglify');
 const config = {
   exports: 'named',
   format: 'umd',
-  moduleName: 'Cancelable',
+  moduleName: 'Cancellable',
   plugins: [
     babel({
       exclude: 'node_modules/**'
