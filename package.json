@@ -5,7 +5,7 @@
   "module": "es/index.js",
   "jsnext:main": "es/index.js",
   "types": "index.d.ts",
-  "version": "0.0.1-rc.2",
+  "version": "0.0.1-rc.3",
   "description": "Wrapper to create cancellable promises",
   "repository": "git@github.com:KOPTE3/pcancellable.git",
   "license": "MIT",
