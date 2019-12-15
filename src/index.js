@@ -21,6 +21,7 @@ export default class Cancellable {
   children = null;
   onCancel = null;
   parent = null;
+  _throwOnCancel = false;
 
   constructor(executor) {
     if (typeof executor !== 'function') {
@@ -40,6 +41,7 @@ export default class Cancellable {
       new Promise((resolve, reject) => {
         executor(
           value => {
+            this._resolveValue = value;
             resolve(value);
           },
           reason => {
@@ -172,19 +174,29 @@ export default class Cancellable {
         current.children = null;
       }
 
+      if (Cancellable.isCancellable(current._resolveValue)) {
+        current._resolveValue.cancel();
+      }
+
       current.setCanceled();
 
       if (current.onCancel && typeof current.onCancel === 'function') {
         current.onCancel(cb);
       }
 
-      if (!current.parent) {
+      if (!current.parent && current._throwOnCancel) {
         current._reject(new CancellationError());
       }
 
       current = prev.parent;
       prev = null;
     }
+  }
+
+  throwOnCancel() {
+    this._throwOnCancel = true;
+
+    return this;
   }
 
   /**
