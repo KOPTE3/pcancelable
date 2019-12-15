@@ -7,19 +7,19 @@ A `Cancelable` wraps the ES6 standard `Promise`, and it is compatible with whate
 
 ## Status
 
-[![Travis](https://img.shields.io/travis/joaogranado/pcancelable.svg)](https://travis-ci.org/joaogranado/pcancelable)
-[![Greenkeeper badge](https://badges.greenkeeper.io/joaogranado/pcancelable.svg)](https://greenkeeper.io/)
+[![Travis](https://img.shields.io/travis/joaogranado/pcancellable.svg)](https://travis-ci.org/joaogranado/pcancellable)
+[![Greenkeeper badge](https://badges.greenkeeper.io/joaogranado/pcancellable.svg)](https://greenkeeper.io/)
 
 ## Installation
 
 ```sh
-npm install --save pcancelable
+npm install --save pcancellable
 ```
 
 or
 
 ```
-yarn add pcancelable
+yarn add pcancellable
 ```
 
 ## What is a Cancelable
