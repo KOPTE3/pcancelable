@@ -29,7 +29,6 @@ if (process.env.NODE_ENV === 'production') {
         pure_getters: true,
         unsafe_comps: true,
         unsafe: true,
-        warnings: false
       }
     })
   );

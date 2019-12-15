@@ -1,4 +1,4 @@
-# Cancelable
+# Cancelable (this package in development, do not use it)
 
 > Wrapper to create cancelable promises.
 
