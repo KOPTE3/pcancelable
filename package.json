@@ -5,7 +5,7 @@
   "module": "es/index.js",
   "jsnext:main": "es/index.js",
   "types": "index.d.ts",
-  "version": "0.0.1-rc.1",
+  "version": "0.0.1-rc.2",
   "description": "Wrapper to create cancellable promises",
   "repository": "git@github.com:KOPTE3/pcancellable.git",
   "license": "MIT",
@@ -23,7 +23,6 @@
     "bundle-umd": "BABEL_ENV=es NODE_ENV=development rollup -c -i src/index.js -o dist/pcancellable.js",
     "bundle": "npm run bundle-commonjs && npm run bundle-es && npm run bundle-umd-min && npm run bundle-umd",
     "clear": "rimraf lib es dist coverage",
-    "lint": "eslint src __tests__",
     "prepublish": "npm run clear && npm run bundle",
     "test": "jest",
     "test-watch": "npm test -- --watch --notify"
@@ -31,11 +30,8 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
-    "babel-eslint": "^7.2.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.7.0",
-    "eslint": "^4.1.0",
-    "eslint-plugin-import": "^2.19.1",
     "jest": "^24.9.0",
     "rimraf": "^3.0.0",
     "rollup": "^0.43.1",
