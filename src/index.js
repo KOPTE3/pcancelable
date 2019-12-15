@@ -231,6 +231,11 @@ export default class Cancellable {
 		));
 
 		cancellable.parent = this;
+		if (this.children) {
+			this.children.push(cancellable);
+		} else {
+			this.children = [cancellable];
+		}
 
 		return cancellable;
 	}
@@ -261,6 +266,11 @@ export default class Cancellable {
 		));
 
 		cancellable.parent = this;
+		if (this.children) {
+			this.children.push(cancellable);
+		} else {
+			this.children = [cancellable];
+		}
 
 		return cancellable;
 	}
