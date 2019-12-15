@@ -2,7 +2,34 @@
  * Module dependencies.
  */
 
+global.context = global.context || global.describe;
+global.specify = global.specify || global.it;
+
 import Cancellable from '../src';
+import {mocha} from 'promises-aplus-tests';
+
+/**
+ * Run `Promises/A+ Tests`
+ */
+describe("Promises/A+ Tests", function () {
+	mocha({
+		resolved(value) {
+			return Cancellable.resolve(value);
+		},
+		rejected(reason) {
+			return Cancellable.reject(reason);
+		},
+		deferred() {
+			let resolve, reject;
+			const promise = new Cancellable(function (res, rej) {
+				resolve = res;
+				reject = rej;
+			});
+
+			return { promise, resolve, reject };
+		},
+	});
+});
 
 /**
  * Test `Cancellable`.

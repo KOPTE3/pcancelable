@@ -12,6 +12,19 @@ export class CancellationError extends Error {
 	}
 }
 
+function wrapHandler(handler, cancellable, checkValue) {
+	if (typeof handler === 'function') {
+		return (value) => {
+			if (cancellable.isCanceled()) {
+				return;
+			}
+			return handler(value);
+		}
+	}
+
+	return handler;
+}
+
 /**
  * Export `Cancellable`.
  */
@@ -146,7 +159,9 @@ export default class Cancellable {
 	 */
 
 	static reject(reason) {
-		return Cancellable.resolve(Promise.reject(reason));
+		return new Cancellable((_, reject) => {
+			reject(reason);
+		});
 	}
 
 	/**
@@ -211,12 +226,9 @@ export default class Cancellable {
 	 */
 
 	catch(onrejected) {
-		const cancellable = Cancellable.resolve(this.promise.catch((reason) => {
-			if (this.isCanceled()) {
-				return;
-			}
-			return onrejected ? onrejected(reason) : void 0;
-		}));
+		const cancellable = Cancellable.resolve(this.promise.catch(
+			wrapHandler(onrejected, this),
+		));
 
 		cancellable.parent = this;
 
@@ -244,18 +256,8 @@ export default class Cancellable {
 
 	then(onfulfilled, onrejected) {
 		const cancellable = Cancellable.resolve(this.promise.then(
-			(value) => {
-				if (this.isCanceled()) {
-					return;
-				}
-				return onfulfilled ? onfulfilled(value) : void 0;
-			},
-			(reason) => {
-				if (this.isCanceled()) {
-					return;
-				}
-				return onrejected ? onrejected(reason) : void 0;
-			}
+			wrapHandler(onfulfilled, this),
+			wrapHandler(onrejected, this),
 		));
 
 		cancellable.parent = this;
