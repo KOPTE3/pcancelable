@@ -1,4 +1,4 @@
-declare class CancelErrorClass extends Error {
+declare class CancellationError extends Error {
 	readonly name: 'CancellationError';
 
 	constructor(reason?: string);
@@ -13,8 +13,6 @@ declare namespace Cancellable {
 	interface OnCancelFunction {
 		(cancelHandler: any | (() => void)): void;
 	}
-
-	type CancelError = CancelErrorClass;
 }
 
 declare class Cancellable<ValueType> extends Promise<ValueType> {
@@ -53,8 +51,7 @@ declare class Cancellable<ValueType> extends Promise<ValueType> {
 	throwOnCancel(): this;
 
 	cancel(reason?: any | (() => void)): void;
-
-	static CancelError: typeof CancelErrorClass;
 }
 
 export default Cancellable;
+export {CancellationError};
